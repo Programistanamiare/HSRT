@@ -60,7 +60,6 @@ int HW_HSRT::read(uint8_t* buffer, uint16_t size)
   {
     buffer[bytesRead++] = serial.read();
   }
-  // size_t bytesRead = serial.readBytes(buffer, size); // odczytanie danych do bufora
   serial.end(); // wylaczenie portu szeregowego
   digitalWrite(txPin, LOW); // zresetowanie sygnału gotowości odbioru
   return bytesRead;
@@ -121,15 +120,8 @@ int SW_HSRT::read(uint8_t* buffer, uint16_t size)
   serial.begin(baudrate); // wlaczenie portu szeregowego
   digitalWrite(txPin, HIGH); // wyslanie sygnalu odpowiedzi gotowości do odbioru danych
   interrupts();
-  //delay(waitByteTime * 7 + 1); // odczekanie na wyslanie przez nadawcę danych
-  // size_t bytesRead = 0;
-  // for (int i = 0; i < 7; ++i)
-  // {
-    //   Serial.write(serial.read());
-    // }
   size_t bytesRead = serial.readBytes(buffer, size); // odczytanie danych do bufora
-    Serial.write(bytesRead);
-    digitalWrite(txPin, LOW); // zresetowanie sygnału gotowości odbioru
+  digitalWrite(txPin, LOW); // zresetowanie sygnału gotowości odbioru
   serial.end(); // wylaczenie portu szeregowego
   return bytesRead;
 }

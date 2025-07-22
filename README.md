@@ -16,7 +16,7 @@
 ```cpp
 #include <hsrt.hpp>
 
-HW_HSRT serial{Serial1, 0, 1};
+HW_HSRT serial{Serial1, 19, 18};
 
 void setup()
 {

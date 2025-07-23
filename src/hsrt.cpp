@@ -65,6 +65,7 @@ int HW_HSRT::read(uint8_t* buffer, uint16_t size)
   return bytesRead;
 }
 
+#ifndef __AVR_ATmega2560__
 
 SW_HSRT::SW_HSRT(uint8_t rx, uint8_t tx)
 : rxPin{rx},
@@ -125,3 +126,5 @@ int SW_HSRT::read(uint8_t* buffer, uint16_t size)
   serial.end(); // wylaczenie portu szeregowego
   return bytesRead;
 }
+
+#endif

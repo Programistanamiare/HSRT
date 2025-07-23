@@ -43,6 +43,7 @@ int HW_HSRT::write(uint8_t* buffer, uint16_t size, unsigned long timeout)
   serial.write(buffer, size); // wyslanie danych z bufora
   serial.flush(); // odczekanie na wyslanie wszystkich danych z bufora
   serial.end(); // wylaczenie portu szeregowego
+  delay(1); // oczekiwanie na stablizację pinów po wyłączeniu drivera
   digitalWrite(txPin, LOW); // zresetowanie sygnalu chęci nadawania
   delay(2); // nie ruszaj tego to musi kurwa być!!!
   return 0;
@@ -56,12 +57,14 @@ int HW_HSRT::read(uint8_t* buffer, uint16_t size)
   digitalWrite(txPin, HIGH); // wyslanie sygnalu odpowiedzi gotowości do odbioru danych
   delay(waitByteTime * size + 1); // odczekanie na wyslanie przez nadawcę danych
   size_t bytesRead = 0;
-  while (serial.available() > 0)
+  while (serial.available() > 0 && bytesRead < size)
   {
     buffer[bytesRead++] = serial.read();
   }
   serial.end(); // wylaczenie portu szeregowego
+  delay(1); // oczekiwanie na ustabilizaowanie pinu po wyłączeniu drivera
   digitalWrite(txPin, LOW); // zresetowanie sygnału gotowości odbioru
+  delay(1); // zastosowany w celu nie kolidowania z handshake nadawcy
   return bytesRead;
 }
 
@@ -109,6 +112,7 @@ int SW_HSRT::write(uint8_t* buffer, uint16_t size, unsigned long timeout)
   serial.begin(baudrate); // uruchomienie portu szeregowego
   serial.write(buffer, size); // wyslanie danych z bufora
   serial.end(); // wylaczenie portu szeregowego
+  delay(1); // oczekiwanie na ustabilizowanie się pinu po wyłączeniu drivera
   digitalWrite(txPin, LOW); // zresetowanie sygnalu chęci nadawania
   delay(2); // nie ruszaj tego to musi kurwa być!!!
   return 0;
@@ -120,10 +124,16 @@ int SW_HSRT::read(uint8_t* buffer, uint16_t size)
   if (!isPeerReady()) return -1; // sprawdzenie czy podlaczone urzadzenie chce nadawac
   serial.begin(baudrate); // wlaczenie portu szeregowego
   digitalWrite(txPin, HIGH); // wyslanie sygnalu odpowiedzi gotowości do odbioru danych
-  interrupts();
-  size_t bytesRead = serial.readBytes(buffer, size); // odczytanie danych do bufora
-  digitalWrite(txPin, LOW); // zresetowanie sygnału gotowości odbioru
+  delay(waitByteTime * size + 1); // oczekiwanie na wysłanie oczekiwanej liczby danych
+  size_t bytesRead = 0;
+  while (serial.available() > 0 && bytesRead < size)
+  {
+    buffer[bytesRead++] = serial.read();
+  }
   serial.end(); // wylaczenie portu szeregowego
+  delay(1); // oczekiwanie na ustabilizowanie pinu po wyłączeniu drivera
+  digitalWrite(txPin, LOW); // zresetowanie sygnału gotowości odbioru
+  delay(1); // zastosowany w celu nie kolidowania z handshake nadawcy
   return bytesRead;
 }
 

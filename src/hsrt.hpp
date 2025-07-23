@@ -43,6 +43,7 @@ private:
   HardwareSerial& serial;
 };
 
+#ifndef __AVR_ATmega2560__
 
 class SW_HSRT
 {
@@ -83,3 +84,5 @@ private:
   float waitByteTime;
   SoftwareSerial serial;
 };
+
+#endif
